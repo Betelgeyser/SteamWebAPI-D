@@ -1,0 +1,10 @@
+{
+	"name": "steamwebapi-d",
+	"description": "Simple D library to access Steam Web API",
+	"copyright": "Copyright © 2020, Sergei Filippov",
+	"authors": [
+		"Sergei Filippov"
+	],
+	"license": "MIT",
+	"targetType": "library"
+}
