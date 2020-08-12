@@ -141,7 +141,7 @@ struct Player
 	}
 }
 
-Player[] GetPlayerSummaries(string key, long[] steamids)
+Player[] GetPlayerSummaries(const string key, const long[] steamids)
 {
 	if (steamids.length > 100)
 		throw new Exception("GetPlayerSummaries method takes only up to 100 steamids");
@@ -168,3 +168,4 @@ Player[] GetPlayerSummaries(string key, long[] steamids)
 	
 	return result;
 }
+

@@ -28,20 +28,55 @@ import std.array : array;
 import std.conv : to;
 import std.json : JSONValue, parseJSON;
 import std.net.curl : get;
+import std.typecons : Nullable;
 
 struct App
 {
-	uint   appID;
+	uint appID;
+	
 	string name;
-
+	string imgIconURL;
+	string imgLogoURL;
+	
+	Nullable!uint playtime2weeks;
+	Nullable!uint playtimeForever;
+	Nullable!uint playtimeWindowsForever;
+	Nullable!uint playtimeMacForever;
+	Nullable!uint playtimeLinuxForever;
+	
 	@disable this();
-
+	
 	this(JSONValue json)
 	{
 		appID = json["appid"].integer.to!uint;
-		name  = json["name"].str;
+		
+		if ("name" in json)
+			name = json["name"].str;
+		
+		if ("img_icon_url" in json)
+			imgIconURL = json["img_icon_url"].str;
+		
+		if ("img_logo_url" in json)
+			imgLogoURL = json["img_logo_url"].str;
+		
+		if ("playtime_2weeks" in json)
+			playtime2weeks = json["playtime_2weeks"].integer.to!uint;
+		
+		if ("playtime_forever" in json)
+			playtimeForever = json["playtime_forever"].integer.to!uint;
+		
+		if ("playtime_windows_forever" in json)
+			playtimeWindowsForever = json["playtime_windows_forever"].integer.to!uint;
+		
+		if ("playtime_mac_forever" in json)
+			playtimeMacForever = json["playtime_mac_forever"].integer.to!uint;
+		
+		if ("playtime_linux_forever" in json)
+			playtimeLinuxForever = json["playtime_linux_forever"].integer.to!uint;
 	}
 }
+
+alias Game = App;
 
 App[] GetAppList()
 {
@@ -52,3 +87,4 @@ App[] GetAppList()
 		.map!(json => App(json))
 		.array();
 }
+
