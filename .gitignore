@@ -23,5 +23,8 @@ docs/
 # Code coverage
 *.lst
 
+# vim
+*.swp
+
 # Eclipse
 .project
