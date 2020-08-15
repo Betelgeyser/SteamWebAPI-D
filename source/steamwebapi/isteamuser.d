@@ -153,7 +153,8 @@ Player[] GetPlayerSummaries(const string key, const long[] steamids)
 		~ "ISteamUser/GetPlayerSummaries/v2/"
 		~ "?key=" ~ key
 		~ "&steamids=" ~ steamids
-			.sort!((a, b) => a < b) // For uniq to work properly sort is required.
+			.dup()
+			.sort!((a, b) => a < b) // uniq works on consecutive elements only.
 			.uniq()
 			.map!(x => x.to!string)
 			.join(",")
