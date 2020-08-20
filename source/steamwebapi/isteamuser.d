@@ -24,11 +24,14 @@
 module steamwebapi.isteamuser;
 
 import std.algorithm : map, sort, uniq;
-import std.array : array, join;
+import std.array : join;
 import std.conv : to;
 import std.json : JSONValue, parseJSON;
 import std.net.curl : get;
+import std.traits : getSymbolsByUDA;
 import std.typecons : Nullable;
+
+import steamwebapi.utilities;
 
 enum PersonaState
 {
@@ -53,88 +56,54 @@ enum CommunityVisibilityState
 struct Player
 {
 	/// Public  data
-	long   steamID;
-	string personaName;
-	string profileURL;
-	string avatar;
-	string avatarMedium;
-	string avatarFull;
-	Nullable!int  profileState;
-	Nullable!long lastLogoff;
-	Nullable!int  commentPermission;
+	ulong steamID;
 	
-	PersonaState             personaState;
-	CommunityVisibilityState communityVisibilityState;
+	@JSON("personaname") string personaName;
+	@JSON("profileurl")  string profileURL;
+	
+	@JSON("avatar")       string avatar;
+	@JSON("avatarmedium") string avatarMedium;
+	@JSON("avatarfull")   string avatarFull;
+	
+	@JSON("profilestate") Nullable!int  profileState;
+	@JSON("lastlogoff")   Nullable!long lastLogoff;
+	
+	@JSON("commentpermission") Nullable!int commentPermission;
+	
+	@JSON("personastate") PersonaState personaState;
+	@JSON("communityvisibilitystate") CommunityVisibilityState communityVisibilityState;
 	
 	/// Private steam data
-	Nullable!string realName;
-	Nullable!long   primaryClanID;
-	Nullable!long   timeCreated;
-	Nullable!long   gameID;
-	Nullable!string gameServerIP;
-	Nullable!long   gameServerSteamID;
-	Nullable!string gameExtraInfo;
-	Nullable!string locCountryCode;
-	Nullable!string locStateCode;
-	Nullable!long   locCityCode;
-	Nullable!int    personaStateFlags;
-	Nullable!long   lobbySteamID;
+	@JSON("realname")       Nullable!string realName;
+	@JSON("timecreated")    Nullable!long   timeCreated;
+	@JSON("gameserverip")   Nullable!string gameServerIP;
+	@JSON("gameextrainfo")  Nullable!string gameExtraInfo;
+	@JSON("loccountrycode") Nullable!string locCountryCode;
+	@JSON("locstatecode")   Nullable!string locStateCode;
+	@JSON("loccitycode")    Nullable!long   locCityCode;
+	@JSON("personastateflags") Nullable!int personaStateFlags;
 	
-	@disable this();
+	Nullable!long primaryClanID;
+	Nullable!long gameID;
+	Nullable!long gameServerSteamID;
+	Nullable!long lobbySteamID;
 	
 	this(JSONValue json)
 	{
-		steamID      = json["steamid"].str.to!long;
-		personaName  = json["personaname"].str;
-		profileURL   = json["profileurl"].str;
-		avatar       = json["avatar"].str;
-		avatarMedium = json["avatarmedium"].str;
-		avatarFull   = json["avatarfull"].str;
+		fromJSON!(getSymbolsByUDA!(typeof(this), JSON))(json);
 		
-		personaState             = json["personastate"].integer.to!PersonaState;
-		communityVisibilityState = json["communityvisibilitystate"].integer.to!CommunityVisibilityState;
-		
-		if ("profilestate" in json)
-			profileState = json["profilestate"].integer.to!int;
-		
-		if ("lastlogoff" in json)
-			lastLogoff = json["lastlogoff"].integer;
-		
-		if ("commentpermission" in json)
-			commentPermission = json["commentpermission"].integer.to!int;
-		
-		if ("realname" in json)
-			realName = json["realname"].str;
+		// Steam returns the fields below as strings, but since they have
+		// "id" in their names I guess we can treat them like integers
+		steamID = json["steamid"].str.to!ulong;
 		
 		if ("primaryclanid" in json)
 			primaryClanID = json["primaryclanid"].str.to!long;
 		
-		if ("timecreated" in json)
-			timeCreated = json["timecreated"].integer;
-		
 		if ("gameid" in json)
 			gameID = json["gameid"].str.to!long;
 		
-		if ("gameserverip" in json)
-			gameServerIP = json["gameserverip"].str;
-		
 		if ("gameserversteamid" in json)
 			gameServerSteamID = json["gameserversteamid"].str.to!long;
-		
-		if ("gameextrainfo" in json)
-			gameExtraInfo = json["gameextrainfo"].str;
-		
-		if ("loccountrycode" in json)
-			locCountryCode = json["loccountrycode"].str;
-		
-		if ("locstatecode" in json)
-			locStateCode = json["locstatecode"].str;
-		
-		if ("loccitycode" in json)
-			locCityCode = json["loccitycode"].integer;
-		
-		if ("personastateflags" in json)
-			personaStateFlags = json["personastateflags"].integer.to!int;
 		
 		if ("lobbysteamid" in json)
 			lobbySteamID = json["lobbysteamid"].str.to!long;

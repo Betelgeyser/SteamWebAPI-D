@@ -25,24 +25,17 @@ module steamwebapi.isteamapps;
 
 import std.algorithm : map;
 import std.array : array;
-import std.conv : to;
-import std.json : JSONValue, parseJSON;
+import std.json : parseJSON;
 import std.net.curl : get;
+
+import steamwebapi.utilities;
 
 struct App
 {
-	uint appID;
-	string name;
+	@JSON("appid") uint   appID;
+	@JSON("name")  string name;
 	
-	@disable this();
-	
-	this(JSONValue json)
-	{
-		appID = json["appid"].integer.to!uint;
-		
-		if ("name" in json)
-			name = json["name"].str;
-	}
+	mixin JSONCtor;
 }
 
 App[] GetAppList()

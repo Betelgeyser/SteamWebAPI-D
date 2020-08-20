@@ -30,50 +30,23 @@ import std.json : JSONValue, parseJSON;
 import std.net.curl : get;
 import std.typecons : Nullable;
 
+import steamwebapi.utilities;
+
 struct OwnedGame
 {
-	uint appID;
+	@JSON("appid") uint appID;
 	
-	string name;
-	string imgIconURL;
-	string imgLogoURL;
+	@JSON("name") string name;
+	@JSON("img_icon_url") string imgIconURL;
+	@JSON("img_logo_url") string imgLogoURL;
 	
-	Nullable!uint playtime2weeks;
-	Nullable!uint playtimeForever;
-	Nullable!uint playtimeWindowsForever;
-	Nullable!uint playtimeMacForever;
-	Nullable!uint playtimeLinuxForever;
+	@JSON("playtime_2weeks")  Nullable!uint playtime2weeks;
+	@JSON("playtime_forever") Nullable!uint playtimeForever;
+	@JSON("playtime_windows_forever") Nullable!uint playtimeWindowsForever;
+	@JSON("playtime_mac_forever")     Nullable!uint playtimeMacForever;
+	@JSON("playtime_linux_forever")   Nullable!uint playtimeLinuxForever;
 	
-	@disable this();
-	
-	this(JSONValue json)
-	{
-		appID = json["appid"].integer.to!uint;
-		
-		if ("name" in json)
-			name = json["name"].str;
-		
-		if ("img_icon_url" in json)
-			imgIconURL = json["img_icon_url"].str;
-		
-		if ("img_logo_url" in json)
-			imgLogoURL = json["img_logo_url"].str;
-		
-		if ("playtime_2weeks" in json)
-			playtime2weeks = json["playtime_2weeks"].integer.to!uint;
-		
-		if ("playtime_forever" in json)
-			playtimeForever = json["playtime_forever"].integer.to!uint;
-		
-		if ("playtime_windows_forever" in json)
-			playtimeWindowsForever = json["playtime_windows_forever"].integer.to!uint;
-		
-		if ("playtime_mac_forever" in json)
-			playtimeMacForever = json["playtime_mac_forever"].integer.to!uint;
-		
-		if ("playtime_linux_forever" in json)
-			playtimeLinuxForever = json["playtime_linux_forever"].integer.to!uint;
-	}
+	mixin JSONCtor;
 }
 
 OwnedGame[] GetOwnedGames(const string key, const long steamid, const bool includeAppInfo = false, const bool includePlayedFreeGames = false, const uint[] appidsFilter = null)
