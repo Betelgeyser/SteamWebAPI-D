@@ -24,7 +24,7 @@
 module steamwebapi.isteamuser;
 
 import std.algorithm : map, sort, uniq;
-import std.array : join;
+import std.array : array, join;
 import std.conv : to;
 import std.json : JSONValue, parseJSON;
 import std.net.curl : get;
@@ -115,8 +115,6 @@ Player[] GetPlayerSummaries(const string key, const long[] steamids)
 	if (steamids.length > 100)
 		throw new Exception("GetPlayerSummaries method takes only up to 100 steamids");
 	
-	Player[] result;
-	
 	scope auto response = get(
 		  "https://api.steampowered.com/"
 		~ "ISteamUser/GetPlayerSummaries/v2/"
@@ -125,17 +123,13 @@ Player[] GetPlayerSummaries(const string key, const long[] steamids)
 			.dup()
 			.sort!((a, b) => a < b) // uniq works on consecutive elements only.
 			.uniq()
-			.map!(x => x.to!string)
+			.map!(id => id.to!string)
 			.join(",")
 	);
 	
-	scope auto players = response.parseJSON["response"]["players"].array;
-	
-	result.reserve(players.length);
-	
-	foreach (json; players)
-		result ~= Player(json);
-	
-	return result;
+	return response
+		.parseJSON["response"]["players"].array
+		.map!(json => Player(json))
+		.array;
 }
 
