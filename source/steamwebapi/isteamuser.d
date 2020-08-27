@@ -56,7 +56,7 @@ enum CommunityVisibilityState
 struct Player
 {
 	/// Public  data
-	ulong steamID;
+	long steamID;
 	
 	@JSON("personaname") string personaName;
 	@JSON("profileurl")  string profileURL;
@@ -94,7 +94,7 @@ struct Player
 		
 		// Steam returns the fields below as strings, but since they have
 		// "id" in their names I guess we can treat them like integers
-		steamID = json["steamid"].str.to!ulong;
+		steamID = json["steamid"].str.to!long;
 		
 		if ("primaryclanid" in json)
 			primaryClanID = json["primaryclanid"].str.to!long;
@@ -132,4 +132,3 @@ Player[] GetPlayerSummaries(const string key, const long[] steamids)
 		.map!(json => Player(json))
 		.array;
 }
-

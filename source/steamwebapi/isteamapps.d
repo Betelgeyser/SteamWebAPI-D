@@ -32,7 +32,7 @@ import steamwebapi.utilities;
 
 struct App
 {
-	@JSON("appid") uint   appID;
+	@JSON("appid") int    appID;
 	@JSON("name")  string name;
 	
 	mixin JSONCtor;

@@ -34,17 +34,17 @@ import steamwebapi.utilities;
 
 struct OwnedGame
 {
-	@JSON("appid") uint appID;
+	@JSON("appid") int appID;
 	
 	@JSON("name") string name;
 	@JSON("img_icon_url") string imgIconURL;
 	@JSON("img_logo_url") string imgLogoURL;
 	
-	@JSON("playtime_2weeks")  Nullable!uint playtime2weeks;
-	@JSON("playtime_forever") Nullable!uint playtimeForever;
-	@JSON("playtime_windows_forever") Nullable!uint playtimeWindowsForever;
-	@JSON("playtime_mac_forever")     Nullable!uint playtimeMacForever;
-	@JSON("playtime_linux_forever")   Nullable!uint playtimeLinuxForever;
+	@JSON("playtime_2weeks")  Nullable!int playtime2weeks;
+	@JSON("playtime_forever") Nullable!int playtimeForever;
+	@JSON("playtime_windows_forever") Nullable!int playtimeWindowsForever;
+	@JSON("playtime_mac_forever")     Nullable!int playtimeMacForever;
+	@JSON("playtime_linux_forever")   Nullable!int playtimeLinuxForever;
 	
 	mixin JSONCtor;
 }

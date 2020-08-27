@@ -87,20 +87,8 @@ bool isNullable(T)()
 
 T fromJSONImpl(T)(JSONValue json)
 {
-	static if (isBoolean!T)
-		return json.boolean.to!T;
-	
-	else static if (isIntegral!T)
-		return json.integer.to!T;
-	
-	else static if (isFloatingPoint!T)
-		return json.floating.to!T;
-	
-	else static if (isSomeString!T)
-		return json.str.to!T;
-	
-	else static if (isArray!T)
-		return json.array.to!T;
+	static if (isBoolean!T || isNumeric!T || isSomeString!T)
+		return json.get!T;
 	
 	else static if (is(T == struct) || is(T == class))
 		return T(json);
