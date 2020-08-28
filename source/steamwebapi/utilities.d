@@ -75,6 +75,9 @@ void fromJSON(args...)(JSONValue json)
 
 package:
 
+/**
+ * Removes Nullable and all qualifiers from any given type.
+ */
 template NoNullable(T)
 {
 	static if (isInstanceOf!(Nullable, T))
@@ -94,6 +97,19 @@ template NoNullable(T)
 		alias NoNullable = Unqual!T;
 }
 
+///
+unittest
+{
+	assert (is(NoNullable!int == int));
+	assert (is(NoNullable!(Nullable!int) == int));
+	assert (is(NoNullable!(Nullable!(int[])) == int[]));
+	assert (is(NoNullable!(Nullable!string) == string));
+	assert (is(NoNullable!(Nullable!(string[])) == string[]));
+}
+
+/**
+ * Returns `true` if T is instance of Nullable.
+ */
 bool isNullable(T)()
 {
 	return isInstanceOf!(Nullable, T);
@@ -120,3 +136,60 @@ T fromJSONImpl(T)(JSONValue json)
 		static assert (0, "Unsupported type " ~ T.stringof);
 }
 
+unittest
+{
+	import std.json : parseJSON;
+	
+	struct Outter
+	{
+		bool b;
+		string[] arr;
+		Inner[] inner;
+		
+		struct Inner
+		{
+			int i;
+			float f;
+			
+			this(JSONValue json)
+			{
+				i = fromJSONImpl!int(json["i"]);
+				f = fromJSONImpl!float(json["f"]);
+			}
+		}
+		
+		this(JSONValue json)
+		{
+			b     = fromJSONImpl!bool(json["b"]);
+			arr   = fromJSONImpl!(string[])(json["arr"]);
+			inner = fromJSONImpl!(Inner[])(json["inner"]);
+		}
+	}
+	
+	string str = "{
+		\"b\": true,
+		\"arr\": [\"Some string\", \"Some other string\"],
+		\"inner\": [
+			{
+				\"i\": 1,
+				\"f\": 1.1
+			},
+			{
+				\"i\": 2,
+				\"f\": 2.2
+			}
+		]
+	}";
+	
+	auto json = parseJSON(str);
+	Outter outter = Outter(json);
+	
+	assert (outter.b);
+	assert (outter.arr == ["Some string", "Some other string"]);
+	
+	assert (outter.inner.length == 2);
+	assert (outter.inner[0].i   == 1);
+	assert (outter.inner[0].f   == 1.1f);
+	assert (outter.inner[1].i   == 2);
+	assert (outter.inner[1].f   == 2.2f);
+}
