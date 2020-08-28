@@ -23,8 +23,11 @@
 
 module steamwebapi.utilities;
 
+import std.algorithm : map;
+import std.array : array;
 import std.conv : to;
 import std.json : JSONValue;
+import std.range.primitives : ElementType;
 import std.traits;
 import std.typecons : Nullable;
 
@@ -75,9 +78,20 @@ package:
 template NoNullable(T)
 {
 	static if (isInstanceOf!(Nullable, T))
-		alias NoNullable = Unqual!(ReturnType!(T.get));
+	{
+		alias baseT = ReturnType!(T.get);
+		
+		static if (isArray!baseT && !isSomeString!baseT)
+		{
+			alias elementT = ElementType!baseT;
+			
+			alias NoNullable = Unqual!elementT[];
+		}
+		else
+			alias NoNullable = Unqual!baseT;
+	}
 	else
-		alias NoNullable = T;
+		alias NoNullable = Unqual!T;
 }
 
 bool isNullable(T)()
@@ -92,5 +106,17 @@ T fromJSONImpl(T)(JSONValue json)
 	
 	else static if (is(T == struct) || is(T == class))
 		return T(json);
+	
+	else static if (isArray!T)
+	{
+		alias elementT = ElementType!T;
+		
+		return json.array
+			.map!(value => fromJSONImpl!elementT(value))
+			.array.to!T;
+	}
+
+	else
+		static assert (0, "Unsupported type " ~ T.stringof);
 }
 
