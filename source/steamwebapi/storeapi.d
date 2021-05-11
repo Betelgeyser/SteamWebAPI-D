@@ -67,6 +67,7 @@ private Nullable!AppData appDetailsImpl(bool raw : false)(const uint appIDs)
 	return AppData.fromJSONString(response);
 }
 
+/// Struct that holds all application details returned by the appDetails method.
 struct AppData
 {
 	@JSON("steam_appid") int  steamAppID;
@@ -91,7 +92,8 @@ struct AppData
 	@JSON("publishers") string[] publishers;
 	
 	@JSON("price_overview") Nullable!PriceOverview priceOverview;
-	
+
+	/// Array of the app dlcs, if any
 	@JSON("dlc")            Nullable!(int[]) dlc;
 	@JSON("packages")       Nullable!(int[]) packages;
 	@JSON("package_groups") PackageGroup[]   packageGroups;
@@ -124,8 +126,14 @@ struct AppData
 	Nullable!Requirements linuxRequirements;
 	
 	int requiredAge;
-	
-	this(JSONValue json)
+
+	/**
+	 * Constructs AppData from json value.
+	 *
+	 * Params:
+	 *		json = a JSONValue to build AppData from.
+	 */
+	this(in ref JSONValue json)
 	{
 		fromJSON!(getSymbolsByUDA!(typeof(this), JSONAttr))(json);
 		
@@ -134,6 +142,9 @@ struct AppData
 		else if (json["required_age"].type == JSONType.string)
 			requiredAge = json["required_age"].str.to!int;
 		
+		// Generally requirements fields are returned as objects,
+		// but for some reason if field is empty, steam returns
+		// it as an array
 		if ("pc_requirements" in json)
 			if (json["pc_requirements"].type == JSONType.object)
 				pcRequirements = Requirements(json["pc_requirements"]);
