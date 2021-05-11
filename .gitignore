@@ -28,3 +28,6 @@ docs/
 
 # Eclipse
 .project
+
+# IntelliJ IDEA
+.idea
