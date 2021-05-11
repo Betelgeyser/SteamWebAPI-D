@@ -59,7 +59,7 @@ struct AppData
 	@JSON("fullgame") Nullable!Fullgame fullgame;
 	
 	@JSON("controller_support")  Nullable!string controllerSupport;
-	@JSON("supported_languages") string supportedLanguages;
+	@JSON("supported_languages") Nullable!string supportedLanguages;
 	
 	@JSON("website") Nullable!string website;
 	@JSON("reviews") Nullable!string reviews;
@@ -79,7 +79,7 @@ struct AppData
 	@JSON("genres")      Nullable!(Genre[])    genres;
 	
 	@JSON("movies")      Nullable!(Movie[]) movies;
-	@JSON("screenshots") Screenshot[] screenshots;
+	@JSON("screenshots") Nullable!(Screenshot[]) screenshots;
 	
 	@JSON("recommendations") Nullable!Recommendations recommendations;
 	@JSON("achievements")    Nullable!Achievements    achievements;
@@ -96,9 +96,9 @@ struct AppData
 	
 	@JSON("content_descriptors") ContentDescriptors contentDescriptors;
 	
-	Requirements pcRequirements;
-	Requirements macRequirements;
-	Requirements linuxRequirements;
+	Nullable!Requirements pcRequirements;
+	Nullable!Requirements macRequirements;
+	Nullable!Requirements linuxRequirements;
 	
 	int requiredAge;
 	
