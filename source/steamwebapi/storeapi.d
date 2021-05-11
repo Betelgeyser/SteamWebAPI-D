@@ -67,8 +67,6 @@ private Nullable!AppData appDetailsImpl(bool raw : false)(const uint appIDs)
 	return AppData.fromJSONString(response);
 }
 
-package:
-
 struct AppData
 {
 	@JSON("steam_appid") int  steamAppID;
@@ -191,204 +189,202 @@ struct AppData
 	}
 }
 
-private:
-	struct Fullgame
+struct Fullgame
+{
+	int    appID;
+	string name;
+
+	this(JSONValue json)
 	{
-		int    appID;
-		string name;
-		
-		this(JSONValue json)
-		{
-			appID = json["appid"].str.to!int;
-			name  = json["name"].str;
-		}
+		appID = json["appid"].str.to!int;
+		name  = json["name"].str;
 	}
-	
-	struct Requirements
+}
+
+struct Requirements
+{
+	@JSON("minimum")     string minimum;
+	@JSON("recommended") Nullable!string recommended;
+
+	mixin JSONCtor;
+}
+
+struct PriceOverview
+{
+	@JSON("currency") string currency;
+
+	@JSON("initial")  int initial;
+	@JSON("final")    int final_;
+
+	@JSON("discount_percent")  int    discountPercent;
+	@JSON("initial_formatted") string initialFormatted;
+	@JSON("final_formatted")   string finalFormatted;
+
+	mixin JSONCtor;
+}
+
+struct PackageGroup
+{
+	@JSON("name")  string name;
+	@JSON("title") string title;
+
+	@JSON("description")    string description;
+	@JSON("selection_text") string selectionText;
+	@JSON("save_text")      string saveText;
+
+	@JSON("is_recurring_subscription") string isRecurringSubscription;
+
+	@JSON("subs") Sub[] subs;
+
+	int displayType;
+
+	private struct Sub
 	{
-		@JSON("minimum")     string minimum;
-		@JSON("recommended") Nullable!string recommended;
-		
+		@JSON("packageid")       int packageID;
+		@JSON("percent_savings") int percentSavings;
+
+		@JSON("percent_savings_text") string percentSavingsText;
+		@JSON("option_text")          string optionText;
+		@JSON("option_description")   string optionDescription;
+		@JSON("can_get_free_license") string canGetFreeLicense;
+
+		@JSON("is_free_license") bool isFreeLicense;
+
+		@JSON("price_in_cents_with_discount") int priceInCentsWithDiscount;
+
 		mixin JSONCtor;
 	}
-	
-	struct PriceOverview
+
+	this(JSONValue json)
 	{
-		@JSON("currency") string currency;
-		
-		@JSON("initial")  int initial;
-		@JSON("final")    int final_;
-		
-		@JSON("discount_percent")  int    discountPercent;
-		@JSON("initial_formatted") string initialFormatted;
-		@JSON("final_formatted")   string finalFormatted;
-		
+		fromJSON!(getSymbolsByUDA!(typeof(this), JSONAttr))(json);
+
+		if (json["display_type"].type == JSONType.integer)
+			displayType = json["display_type"].integer.to!int;
+
+		else if (json["display_type"].type == JSONType.string)
+			displayType = json["display_type"].str.to!int;
+	}
+}
+
+struct Platforms
+{
+	@JSON("windows") bool windows;
+	@JSON("mac")     bool mac;
+	@JSON("linux")   bool linux;
+
+	mixin JSONCtor;
+}
+
+struct Category
+{
+	@JSON("id") int id;
+	@JSON("description") string description;
+
+	mixin JSONCtor;
+}
+
+struct Genre
+{
+	int    id;
+	string description;
+
+	this(JSONValue json)
+	{
+		if (json["id"].type == JSONType.integer)
+			id = json["id"].integer.to!int;
+
+		else if (json["id"].type == JSONType.string)
+			id = json["id"].str.to!int;
+
+		description = json["description"].str;
+	}
+}
+
+struct Screenshot
+{
+	@JSON("id") int id;
+
+	@JSON("path_thumbnail") string pathThumbnail;
+	@JSON("path_full")      string pathFull;
+
+	mixin JSONCtor;
+}
+
+struct Movie
+{
+	@JSON("id") int id;
+
+	@JSON("name")      string name;
+	@JSON("thumbnail") string thumbnail;
+
+	@JSON("webm") Format webm;
+	@JSON("mp4")  Format mp4;
+
+	@JSON("highlight") bool highlight;
+
+	private struct Format
+	{
+		@JSON("480") string _480;
+		@JSON("max") string max;
+
 		mixin JSONCtor;
 	}
-	
-	struct PackageGroup
+
+	mixin JSONCtor;
+}
+
+struct Recommendations
+{
+	@JSON("total") int total;
+
+	mixin JSONCtor;
+}
+
+struct Achievements
+{
+	@JSON("total")       int total;
+	@JSON("highlighted") Nullable!(Achivement[]) highlighted;
+
+	private struct Achivement
 	{
-		@JSON("name")  string name;
-		@JSON("title") string title;
-		
-		@JSON("description")    string description;
-		@JSON("selection_text") string selectionText;
-		@JSON("save_text")      string saveText;
-		
-		@JSON("is_recurring_subscription") string isRecurringSubscription;
-		
-		@JSON("subs") Sub[] subs;
-		
-		int displayType;
-		
-		private struct Sub
-		{
-			@JSON("packageid")       int packageID;
-			@JSON("percent_savings") int percentSavings;
-			
-			@JSON("percent_savings_text") string percentSavingsText;
-			@JSON("option_text")          string optionText;
-			@JSON("option_description")   string optionDescription;
-			@JSON("can_get_free_license") string canGetFreeLicense;
-			
-			@JSON("is_free_license") bool isFreeLicense;
-			 
-			@JSON("price_in_cents_with_discount") int priceInCentsWithDiscount;
-			
-			mixin JSONCtor;
-		}
-		
-		this(JSONValue json)
-		{
-			fromJSON!(getSymbolsByUDA!(typeof(this), JSONAttr))(json);
-			
-			if (json["display_type"].type == JSONType.integer)
-				displayType = json["display_type"].integer.to!int;
-			
-			else if (json["display_type"].type == JSONType.string)
-				displayType = json["display_type"].str.to!int;
-		}
-	}
-	
-	struct Platforms
-	{
-		@JSON("windows") bool windows;
-		@JSON("mac")     bool mac;
-		@JSON("linux")   bool linux;
-		
+		@JSON("name") string name;
+		@JSON("path") string path;
+
 		mixin JSONCtor;
 	}
-	
-	struct Category
-	{
-		@JSON("id") int id;
-		@JSON("description") string description;
-		
-		mixin JSONCtor;
-	}
-	
-	struct Genre
-	{
-		int    id;
-		string description;
-	
-		this(JSONValue json)
-		{
-			if (json["id"].type == JSONType.integer)
-				id = json["id"].integer.to!int;
-			
-			else if (json["id"].type == JSONType.string)
-				id = json["id"].str.to!int;
-			
-			description = json["description"].str;
-		}
-	}
-	
-	struct Screenshot
-	{
-		@JSON("id") int id;
-		
-		@JSON("path_thumbnail") string pathThumbnail;
-		@JSON("path_full")      string pathFull;
-		
-		mixin JSONCtor;
-	}
-	
-	struct Movie
-	{
-		@JSON("id") int id;
-		
-		@JSON("name")      string name;
-		@JSON("thumbnail") string thumbnail;
-		
-		@JSON("webm") Format webm;
-		@JSON("mp4")  Format mp4;
-		
-		@JSON("highlight") bool highlight;
-		
-		private struct Format
-		{
-			@JSON("480") string _480;
-			@JSON("max") string max;
-			
-			mixin JSONCtor;
-		}
-		
-		mixin JSONCtor;
-	}
-	
-	struct Recommendations
-	{
-		@JSON("total") int total;
-		
-		mixin JSONCtor;
-	}
-	
-	struct Achievements
-	{
-		@JSON("total")       int total;
-		@JSON("highlighted") Nullable!(Achivement[]) highlighted;
-		
-		private struct Achivement
-		{
-			@JSON("name") string name;
-			@JSON("path") string path;
-			
-			mixin JSONCtor;
-		}
-		
-		mixin JSONCtor;
-	}
-	
-	struct ReleaseDate
-	{
-		@JSON("coming_soon") bool comingSoon;
-		@JSON("date")        string date;
-		
-		mixin JSONCtor;
-	}
-	
-	struct SupportInfo
-	{
-		@JSON("url")   string url;
-		@JSON("email") string email;
-		
-		mixin JSONCtor;
-	}
-	
-	struct Metacritic
-	{
-		@JSON("score") int    score;
-		@JSON("url")   string url;
-		
-		mixin JSONCtor;
-	}
-	
-	struct ContentDescriptors
-	{
-		@JSON("ids")   int[] ids;
-		@JSON("notes") Nullable!string notes;
-		
-		mixin JSONCtor;
-	}
+
+	mixin JSONCtor;
+}
+
+struct ReleaseDate
+{
+	@JSON("coming_soon") bool comingSoon;
+	@JSON("date")        string date;
+
+	mixin JSONCtor;
+}
+
+struct SupportInfo
+{
+	@JSON("url")   string url;
+	@JSON("email") string email;
+
+	mixin JSONCtor;
+}
+
+struct Metacritic
+{
+	@JSON("score") int    score;
+	@JSON("url")   Nullable!string url;
+
+	mixin JSONCtor;
+}
+
+struct ContentDescriptors
+{
+	@JSON("ids")   int[] ids;
+	@JSON("notes") Nullable!string notes;
+
+	mixin JSONCtor;
 }
