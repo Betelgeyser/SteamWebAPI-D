@@ -49,7 +49,7 @@ struct OwnedGame
 	mixin JSONCtor;
 }
 
-OwnedGame[] GetOwnedGames(const string key, const long steamid, const bool includeAppInfo = false, const bool includePlayedFreeGames = false, const uint[] appidsFilter = null)
+OwnedGame[] getOwnedGames(const string key, const long steamid, const bool includeAppInfo = false, const bool includePlayedFreeGames = false, const uint[] appidsFilter = null)
 {
 	scope JSONValue parameters;
 	parameters["steamid"] = JSONValue(steamid);

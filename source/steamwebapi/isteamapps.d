@@ -38,7 +38,7 @@ struct App
 	mixin JSONCtor;
 }
 
-App[] GetAppList()
+App[] getAppList()
 {
 	scope auto applist = get("https://api.steampowered.com/ISteamApps/GetAppList/v2/");
 
