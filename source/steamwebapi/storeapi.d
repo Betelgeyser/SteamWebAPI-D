@@ -24,6 +24,7 @@
 module steamwebapi.storeapi;
 
 import std.conv : to;
+import std.exception : enforce;
 import std.json : JSONType, JSONValue, parseJSON;
 import std.net.curl : get;
 import std.traits : getSymbolsByUDA;
@@ -31,15 +32,39 @@ import std.typecons : nullable, Nullable;
 
 import steamwebapi.utilities;
 
-Nullable!AppData appDetails(const uint appIDs)
+/**
+ * Requests application details and returns received content, if any.
+ *
+ * Params:
+ *		raw (template) = If set to `true` will return raw string response. Defaults to `false`.
+ *
+ * Returns:
+ *		If raw flag is set to `true` than application details are returned as a
+ *		JSON string.
+ *		If raw is set to `false` than Nullable!AppData is returned. The result
+ *		will be `null` if there is no application details were returned.
+ */
+template appDetails(bool raw = false)
 {
-	scope auto response = get("https://store.steampowered.com/api/appdetails?appids=" ~ appIDs.to!string);
-	scope auto json = response.parseJSON[appIDs.to!string];
-	
-	if (json["success"].boolean)
-		return nullable(AppData(json["data"]));
-	
-	return Nullable!AppData.init;
+	alias appDetails = appDetailsImpl!raw;
+}
+
+/**
+ * Implements `appDetails` template.
+ *
+ * Params:
+ *		appIDs = id of the application to get data of.
+ */
+private string appDetailsImpl(bool raw : true)(const uint appIDs)
+{
+	return get("https://store.steampowered.com/api/appdetails?appids=" ~ appIDs.to!string).to!string;
+}
+
+/// ditto
+private Nullable!AppData appDetailsImpl(bool raw : false)(const uint appIDs)
+{
+	scope auto response = appDetails!true(appIDs);
+	return AppData.fromJSONString(response);
 }
 
 package:
@@ -123,7 +148,49 @@ struct AppData
 			if (json["linux_requirements"].type == JSONType.object)
 				linuxRequirements = Requirements(json["linux_requirements"]);
 	}
-	
+
+	/**
+	 * Constructs Nullable!AppData from a json string.
+	 *
+	 * Params:
+	 *		str = a json formated string, most probably returned by appDetails
+	 *			Steam Web API method.
+	 *
+	 * Returns: Nullable!AppData containing app details if the request was
+	 *		successful or Nullable!AppData being null otherwise.
+	 */
+	static Nullable!AppData fromJSONString(in string str)
+	{
+		auto json = str.parseJSON;
+
+		// Is there any other way of getting json value without knowing its key?
+		// This should be just equivalent to `jsonApp = json[appID.to!string]`,
+		// but we don't know the appID...
+		foreach (string key, ref value; json)
+		{
+			auto jsonApp = json[key];
+			auto appDetailsSucceded = jsonApp["success"].boolean;
+
+			if (appDetailsSucceded)
+			{
+				auto result = AppData(jsonApp["data"]);
+
+				// If this check fails most probably it is retured json format
+				// has changed. Or there is some parsing error.
+				enforce!SteamWebAPIException(
+					key.to!int == result.steamAppID,
+					"App ID is different in appDetails head and content"
+				);
+
+				return nullable(result);
+			}
+			break;
+		}
+
+		return Nullable!AppData.init;
+	}
+}
+
 private:
 	struct Fullgame
 	{

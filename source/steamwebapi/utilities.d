@@ -26,10 +26,19 @@ module steamwebapi.utilities;
 import std.algorithm : map;
 import std.array : array;
 import std.conv : to;
+import std.exception : basicExceptionCtors;
 import std.json : JSONValue;
 import std.range.primitives : ElementType;
 import std.traits;
 import std.typecons : Nullable;
+
+/// General exception class for any Steam Web API related exceptions
+class SteamWebAPIException : Exception
+{
+	mixin basicExceptionCtors;
+}
+
+package:
 
 struct JSONAttr
 {
