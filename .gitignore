@@ -13,6 +13,7 @@
 
 # Executables
 *.exe
+steamwebapi-d-test-library
 
 # DUB
 .dub
