@@ -183,14 +183,6 @@ struct AppData
 			if (appDetailsSucceded)
 			{
 				auto result = AppData(jsonApp["data"]);
-
-				// If this check fails most probably it is retured json format
-				// has changed. Or there is some parsing error.
-				enforce!SteamWebAPIException(
-					key.to!int == result.steamAppID,
-					"App ID is different in appDetails head and content"
-				);
-
 				return nullable(result);
 			}
 			break;
