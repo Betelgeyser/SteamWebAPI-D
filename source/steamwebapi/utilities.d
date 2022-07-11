@@ -27,8 +27,10 @@ import std.algorithm : map;
 import std.array : array;
 import std.conv : to;
 import std.exception : basicExceptionCtors;
+import std.format : format;
 import std.json : JSONValue;
 import std.range.primitives : ElementType;
+import std.string : toLower;
 import std.traits;
 import std.typecons : Nullable;
 
@@ -36,6 +38,38 @@ import std.typecons : Nullable;
 class SteamWebAPIException : Exception
 {
 	mixin basicExceptionCtors;
+}
+
+enum Format { json, xml, vdf }
+
+enum StoreMethod
+{
+	AppDetails
+}
+
+enum WebAPIInterface
+{
+	IPlayerService, ISteamApps, ISteamUser
+}
+
+enum WebAPIMethod
+{
+	GetAppList         = "GetAppList/v2",
+	GetOwnedGames      = "GetOwnedGames/v1",
+	GetPlayerSummaries = "GetPlayerSummaries/v2"
+}
+
+enum apiURL   = "https://api.steampowered.com";
+enum storeURL = "https://store.steampowered.com";
+
+string buildWebAPIRequestURL(WebAPIInterface iface, WebAPIMethod method)
+{
+	return "%s/%s/%s/".format(apiURL, iface, cast(string)method);
+}
+
+string buildStoreAPIRequestURL(StoreMethod method)
+{
+	return "%s/api/%s".format(storeURL, method.to!string.toLower);
 }
 
 package:
@@ -107,6 +141,7 @@ unittest
 {
 	assert (is(NoNullable!int == int));
 	assert (is(NoNullable!(Nullable!int) == int));
+	assert (is(NoNullable!(Nullable!(Nullable!int)) == int));
 	assert (is(NoNullable!(Nullable!(int[])) == int[]));
 	assert (is(NoNullable!(Nullable!string) == string));
 	assert (is(NoNullable!(Nullable!(string[])) == string[]));
@@ -118,7 +153,7 @@ bool isNullable(T)()
 	return isInstanceOf!(Nullable, T);
 }
 
-T fromJSONImpl(T)(JSONValue json)
+T fromJSONImpl(T)(in auto ref JSONValue json)
 {
 	static if (isBoolean!T || isNumeric!T || isSomeString!T)
 		return json.get!T;

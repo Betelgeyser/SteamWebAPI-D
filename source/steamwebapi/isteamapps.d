@@ -25,10 +25,12 @@ module steamwebapi.isteamapps;
 
 import std.algorithm : map;
 import std.array : array;
+import std.conv : to;
 import std.json : parseJSON;
 import std.net.curl : get;
 
 import steamwebapi.utilities;
+public import steamwebapi.utilities : Format;
 
 struct App
 {
@@ -40,10 +42,18 @@ struct App
 
 App[] getAppList()
 {
-	scope auto applist = get("https://api.steampowered.com/ISteamApps/GetAppList/v2/");
+	scope auto applist = getAppList(Format.json);
 
 	return applist
 		.parseJSON["applist"]["apps"].array
 		.map!(json => App(json))
 		.array();
+}
+
+string getAppList(Format format)
+{
+	return get(
+		buildWebAPIRequestURL(WebAPIInterface.ISteamApps, WebAPIMethod.GetAppList)
+		~ "?format=" ~ format.to!string
+	).to!string;
 }

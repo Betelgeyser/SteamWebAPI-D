@@ -27,6 +27,7 @@ import std.conv : to;
 import std.exception : enforce;
 import std.json : JSONType, JSONValue, parseJSON;
 import std.net.curl : get;
+import std.string : format;
 import std.traits : getSymbolsByUDA;
 import std.typecons : nullable, Nullable;
 
@@ -56,9 +57,14 @@ template appDetails(bool raw = false)
  * Params:
  *		appIDs = id of the application to get data of.
  */
-private string appDetailsImpl(bool raw : true)(const uint appIDs)
+private string appDetailsImpl(bool raw : true)(const int appIDs)
 {
-	return get("https://store.steampowered.com/api/appdetails?appids=" ~ appIDs.to!string).to!string;
+	scope string url = "%s?appids=%d".format(
+		buildStoreAPIRequestURL(StoreMethod.AppDetails),
+		appIDs
+	);
+
+	return get(url).to!string;
 }
 
 /// ditto
