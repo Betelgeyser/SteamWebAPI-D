@@ -9,8 +9,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,13 +36,14 @@ import steamwebapi.utilities;
  * Requests application details and returns received content, if any.
  *
  * Params:
- *		raw (template) = If set to `true` will return raw string response. Defaults to `false`.
+ *		raw (template) = If set to `true` will return raw string response.
+ *			Defaults to `false`.
  *
  * Returns:
  *		If raw flag is set to `true` than application details are returned as a
  *		JSON string.
  *		If raw is set to `false` than Nullable!AppData is returned. The result
- *		will be `null` if there is no application details were returned.
+ *		will be `null` if no application details were returned.
  */
 template appDetails(bool raw = false)
 {
@@ -378,7 +379,7 @@ struct SupportInfo
 
 struct Metacritic
 {
-	@JSON("score") int    score;
+	@JSON("score") int score;
 	@JSON("url")   Nullable!string url;
 
 	mixin JSONCtor;

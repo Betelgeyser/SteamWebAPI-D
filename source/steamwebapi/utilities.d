@@ -9,8 +9,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -82,11 +82,7 @@ void fromJSON(args...)(JSONValue json)
 	}
 }
 
-package:
-
-/**
- * Removes Nullable and all qualifiers from any given type.
- */
+/** Removes Nullable and all qualifiers from any given type. */
 template NoNullable(T)
 {
 	static if (isInstanceOf!(Nullable, T))
@@ -116,9 +112,7 @@ unittest
 	assert (is(NoNullable!(Nullable!(string[])) == string[]));
 }
 
-/**
- * Returns `true` if T is instance of Nullable.
- */
+/** Returns `true` if T is instance of Nullable. */
 bool isNullable(T)()
 {
 	return isInstanceOf!(Nullable, T);
