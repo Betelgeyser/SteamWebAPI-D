@@ -68,14 +68,59 @@ private string appDetailsImpl(bool raw : true)(const int appIDs)
 }
 
 /// ditto
-private Nullable!AppData appDetailsImpl(bool raw : false)(const uint appIDs)
+private AppDetails appDetailsImpl(bool raw : false)(const int appIDs)
 {
-	scope auto response = appDetails!true(appIDs);
-	return AppData.fromJSONString(response);
+	scope string response = appDetails!true(appIDs);
+	return AppDetails(response);
+}
+
+struct AppDetails
+{
+	alias _appData this;
+
+	int steamAppID;
+
+	private Nullable!AppData _appData;
+
+	this(in string jsonStr)
+	{
+		this(jsonStr.parseJSON);
+	}
+
+	this()(auto ref JSONValue json)
+	{
+		// App ID is used as a json field name, but we don't know its value
+		// upfront. This should be just equivalent to something like this:
+		// `jsonApp = json[appID.to!string]`
+
+		foreach (string key, ref value; json)
+		{
+			steamAppID = key.to!int;
+
+			auto jsonApp = json[key];
+
+			if (!jsonApp["success"].boolean)
+				return;
+			
+			_appData = AppData(jsonApp["data"]);
+
+			break;
+		}
+	}
+
+	@property bool success() const @safe pure nothrow
+	{
+		return !_appData.isNull();
+	}
+
+	@property auto ref get() inout @safe pure nothrow
+	{
+		return _appData.get();
+	}
 }
 
 /// Struct that holds all application details returned by the appDetails method.
-struct AppData
+private struct AppData
 {
 	@JSON("steam_appid") int  steamAppID;
 	@JSON("is_free")     bool isFree;
@@ -140,7 +185,7 @@ struct AppData
 	 * Params:
 	 *		json = a JSONValue to build AppData from.
 	 */
-	this(in ref JSONValue json)
+	this()(in auto ref JSONValue json)
 	{
 		fromJSON!(getSymbolsByUDA!(typeof(this), JSONAttr))(json);
 		
@@ -163,39 +208,6 @@ struct AppData
 		if ("linux_requirements" in json)
 			if (json["linux_requirements"].type == JSONType.object)
 				linuxRequirements = Requirements(json["linux_requirements"]);
-	}
-
-	/**
-	 * Constructs Nullable!AppData from a json string.
-	 *
-	 * Params:
-	 *		str = a json formated string, most probably returned by appDetails
-	 *			Steam Web API method.
-	 *
-	 * Returns: Nullable!AppData containing app details if the request was
-	 *		successful or Nullable!AppData being null otherwise.
-	 */
-	static Nullable!AppData fromJSONString(in string str)
-	{
-		auto json = str.parseJSON;
-
-		// Is there any other way of getting json value without knowing its key?
-		// This should be just equivalent to `jsonApp = json[appID.to!string]`,
-		// but we don't know the appID...
-		foreach (string key, ref value; json)
-		{
-			auto jsonApp = json[key];
-			auto appDetailsSucceded = jsonApp["success"].boolean;
-
-			if (appDetailsSucceded)
-			{
-				auto result = AppData(jsonApp["data"]);
-				return nullable(result);
-			}
-			break;
-		}
-
-		return Nullable!AppData.init;
 	}
 }
 
