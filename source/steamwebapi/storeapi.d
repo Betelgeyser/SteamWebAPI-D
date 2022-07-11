@@ -207,7 +207,7 @@ struct Fullgame
 
 struct Requirements
 {
-	@JSON("minimum")     string minimum;
+	@JSON("minimum")     Nullable!string minimum;
 	@JSON("recommended") Nullable!string recommended;
 
 	mixin JSONCtor;
