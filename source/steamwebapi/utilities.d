@@ -141,7 +141,6 @@ unittest
 {
 	assert (is(NoNullable!int == int));
 	assert (is(NoNullable!(Nullable!int) == int));
-	assert (is(NoNullable!(Nullable!(Nullable!int)) == int));
 	assert (is(NoNullable!(Nullable!(int[])) == int[]));
 	assert (is(NoNullable!(Nullable!string) == string));
 	assert (is(NoNullable!(Nullable!(string[])) == string[]));
