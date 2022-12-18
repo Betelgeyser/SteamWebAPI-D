@@ -82,18 +82,18 @@ struct AppDetails
 
 	private Nullable!AppData _appData;
 
-	this(in string jsonStr)
+	this(const string jsonStr)
 	{
-		this(jsonStr.parseJSON);
+		this(jsonStr.parseJSON());
 	}
 
-	this()(auto ref JSONValue json)
+	this()(const auto ref JSONValue json) pure
 	{
 		// App ID is used as a json field name, but we don't know its value
 		// upfront. This should be just equivalent to something like this:
 		// `jsonApp = json[appID.to!string]`
 
-		foreach (string key, ref value; json)
+		foreach (key, value; json.object())
 		{
 			steamAppID = key.to!int;
 
@@ -108,12 +108,12 @@ struct AppDetails
 		}
 	}
 
-	@property bool success() const @safe pure nothrow
+	@property bool success() const @nogc @safe pure nothrow
 	{
 		return !_appData.isNull();
 	}
 
-	@property auto ref get() inout @safe pure nothrow
+	@property auto ref get() inout @nogc @safe pure nothrow
 	{
 		return _appData.get();
 	}
@@ -185,7 +185,7 @@ private struct AppData
 	 * Params:
 	 *		json = a JSONValue to build AppData from.
 	 */
-	this()(in auto ref JSONValue json)
+	this()(const auto ref JSONValue json) pure
 	{
 		serialize!AppData(this, json);
 
@@ -274,7 +274,7 @@ struct PackageGroup
 		mixin JSONCtor;
 	}
 
-	this(JSONValue json)
+	this()(const auto ref JSONValue json) pure
 	{
 		serialize!PackageGroup(this, json);
 
@@ -308,7 +308,7 @@ struct Genre
 	int    id;
 	string description;
 
-	this(JSONValue json)
+	this()(const auto ref JSONValue json) pure
 	{
 		if (json["id"].type == JSONType.integer)
 			id = json["id"].integer.to!int;

@@ -62,12 +62,12 @@ enum apiURL   = "https://api.steampowered.com";
 /** Base Steam Store API URL. */
 enum storeURL = "https://store.steampowered.com";
 
-string buildWebAPIRequestURL(WebAPIInterface iface, WebAPIMethod method)
+string buildWebAPIRequestURL(WebAPIInterface iface, WebAPIMethod method) pure @safe
 {
 	return "%s/%s/%s/".format(apiURL, iface, cast(string) method);
 }
 
-string buildStoreAPIRequestURL(StoreMethod method)
+string buildStoreAPIRequestURL(StoreMethod method) pure @safe
 {
 	return "%s/api/%s".format(storeURL, method.to!string.toLower);
 }
@@ -87,7 +87,7 @@ alias JSON = JSONAttr;
 enum string getJSONKey(alias R) = getUDAs!(R, JSONAttr)[0].key;
 
 /** Returns `T` value from a given `json` regardless of its type. */
-T fromJSON(T)(const JSONValue json)
+T fromJSON(T)(const auto ref JSONValue json) pure
 {
 	static if (isBoolean!T || isNumeric!T || isSomeString!T)
 		return json.get!T();
@@ -135,7 +135,7 @@ unittest
  *
  * Only members annotated with `@JSON` attribute are serialized.
  */
-void serialize(T)(auto ref T val, const JSONValue json)
+void serialize(T)(auto ref T val, const auto ref JSONValue json) pure
 {
 	import std.traits : hasUDA;
 
@@ -158,7 +158,8 @@ void serialize(T)(auto ref T val, const JSONValue json)
 mixin template JSONCtor()
 {
 	import std.json : JSONValue;
-	this(JSONValue json)
+
+	this()(const auto ref JSONValue json) pure
 	{
 		alias T = typeof(this);
 		serialize!T(this, json);
