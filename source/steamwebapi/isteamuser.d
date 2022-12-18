@@ -55,66 +55,46 @@ enum CommunityVisibilityState
 
 struct Player
 {
-	/// Public  data
-	long steamID;
-	
+	/// Public data
+	@JSON("steamid")     string steamID;
 	@JSON("personaname") string personaName;
 	@JSON("profileurl")  string profileURL;
-	
+
 	@JSON("avatar")       string avatar;
 	@JSON("avatarmedium") string avatarMedium;
 	@JSON("avatarfull")   string avatarFull;
-	
+
 	@JSON("profilestate") Nullable!int  profileState;
 	@JSON("lastlogoff")   Nullable!long lastLogoff;
-	
+
 	@JSON("commentpermission") Nullable!int commentPermission;
-	
+
 	@JSON("personastate") PersonaState personaState;
 	@JSON("communityvisibilitystate") CommunityVisibilityState communityVisibilityState;
-	
+
 	/// Private steam data
-	@JSON("realname")       Nullable!string realName;
-	@JSON("timecreated")    Nullable!long   timeCreated;
-	@JSON("gameserverip")   Nullable!string gameServerIP;
-	@JSON("gameextrainfo")  Nullable!string gameExtraInfo;
-	@JSON("loccountrycode") Nullable!string locCountryCode;
-	@JSON("locstatecode")   Nullable!string locStateCode;
-	@JSON("loccitycode")    Nullable!long   locCityCode;
+	@JSON("realname")          string realName;
+	@JSON("timecreated")       Nullable!long   timeCreated;
+	@JSON("gameserverip")      string gameServerIP;
+	@JSON("gameextrainfo")     string gameExtraInfo;
+	@JSON("loccountrycode")    string locCountryCode;
+	@JSON("locstatecode")      string locStateCode;
+	@JSON("loccitycode")       Nullable!long   locCityCode;
 	@JSON("personastateflags") Nullable!int personaStateFlags;
-	
-	Nullable!long primaryClanID;
-	Nullable!long gameID;
-	Nullable!long gameServerSteamID;
-	Nullable!long lobbySteamID;
-	
-	this(JSONValue json)
-	{
-		fromJSON!(getSymbolsByUDA!(typeof(this), JSON))(json);
-		
-		// Steam returns the fields below as strings, but since they have
-		// "id" in their names I guess we can treat them like integers
-		steamID = json["steamid"].str.to!long;
-		
-		if ("primaryclanid" in json)
-			primaryClanID = json["primaryclanid"].str.to!long;
-		
-		if ("gameid" in json)
-			gameID = json["gameid"].str.to!long;
-		
-		if ("gameserversteamid" in json)
-			gameServerSteamID = json["gameserversteamid"].str.to!long;
-		
-		if ("lobbysteamid" in json)
-			lobbySteamID = json["lobbysteamid"].str.to!long;
-	}
+
+	@JSON("primaryclanid")     string primaryClanID;
+	@JSON("gameid")            string gameID;
+	@JSON("gameserversteamid") string gameServerSteamID;
+	@JSON("lobbysteamid")      string lobbySteamID;
+
+	mixin JSONCtor;
 }
 
 Player[] getPlayerSummaries(const string key, const long[] steamids)
 {
 	if (steamids.length > 100)
 		throw new Exception("GetPlayerSummaries method takes only up to 100 steamids");
-	
+
 	scope auto response = get(
 		  "https://api.steampowered.com/"
 		~ "ISteamUser/GetPlayerSummaries/v2/"
@@ -126,7 +106,7 @@ Player[] getPlayerSummaries(const string key, const long[] steamids)
 			.map!(id => id.to!string)
 			.join(",")
 	);
-	
+
 	return response
 		.parseJSON["response"]["players"].array
 		.map!(json => Player(json))

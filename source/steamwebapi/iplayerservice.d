@@ -35,17 +35,17 @@ import steamwebapi.utilities;
 struct OwnedGame
 {
 	@JSON("appid") int appID;
-	
+
 	@JSON("name") string name;
 	@JSON("img_icon_url") string imgIconURL;
 	@JSON("img_logo_url") string imgLogoURL;
-	
+
 	@JSON("playtime_2weeks")  Nullable!int playtime2weeks;
 	@JSON("playtime_forever") Nullable!int playtimeForever;
 	@JSON("playtime_windows_forever") Nullable!int playtimeWindowsForever;
 	@JSON("playtime_mac_forever")     Nullable!int playtimeMacForever;
 	@JSON("playtime_linux_forever")   Nullable!int playtimeLinuxForever;
-	
+
 	mixin JSONCtor;
 }
 
@@ -54,16 +54,16 @@ OwnedGame[] getOwnedGames(const string key, const long steamid, const bool inclu
 {
 	scope JSONValue parameters;
 	parameters["steamid"] = JSONValue(steamid);
-	
+
 	if (includeAppInfo)
 		parameters["include_appinfo"] = JSONValue(1);
-	
+
 	if (includePlayedFreeGames)
 		parameters["include_played_free_games"] = JSONValue(1);
-	
+
 	if (appidsFilter !is null)
 		parameters["appids_filter"] = JSONValue(appidsFilter);
-	
+
 	scope auto response = get(
 		  "https://api.steampowered.com/"
 		~ "IPlayerService/GetOwnedGames/v1/"
@@ -71,15 +71,15 @@ OwnedGame[] getOwnedGames(const string key, const long steamid, const bool inclu
 		~ "&format=json"
 		~ "&input_json=" ~ parameters.toString
 	);
-	
+
 	scope auto json = response.parseJSON;
-	
+
 	auto result = json["response"]["games"]
 		.array()
 		.map!(json => OwnedGame(json))
 		.array();
-	
+
 	assert (result.length == json["response"]["game_count"].integer());
-	
+
 	return result;
 }

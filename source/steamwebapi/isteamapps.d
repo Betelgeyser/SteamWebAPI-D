@@ -36,7 +36,7 @@ struct App
 {
 	@JSON("appid") int    appID;
 	@JSON("name")  string name;
-	
+
 	mixin JSONCtor;
 }
 

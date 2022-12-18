@@ -101,7 +101,7 @@ struct AppDetails
 
 			if (!jsonApp["success"].boolean)
 				return;
-			
+
 			_appData = AppData(jsonApp["data"]);
 
 			break;
@@ -124,59 +124,59 @@ private struct AppData
 {
 	@JSON("steam_appid") int  steamAppID;
 	@JSON("is_free")     bool isFree;
-	
+
 	@JSON("type") string type;
 	@JSON("name") string name;
-	
+
 	@JSON("detailed_description") string detailedDescription;
 	@JSON("short_description")    string shortDescription;
 	@JSON("about_the_game")       string aboutTheGame;
-	
+
 	@JSON("fullgame") Nullable!Fullgame fullgame;
-	
-	@JSON("controller_support")  Nullable!string controllerSupport;
-	@JSON("supported_languages") Nullable!string supportedLanguages;
-	
-	@JSON("website") Nullable!string website;
-	@JSON("reviews") Nullable!string reviews;
-	
-	@JSON("developers") Nullable!(string[]) developers;
+
+	@JSON("controller_support")  string controllerSupport;
+	@JSON("supported_languages") string supportedLanguages;
+
+	@JSON("website") string website;
+	@JSON("reviews") string reviews;
+
+	@JSON("developers") string[] developers;
 	@JSON("publishers") string[] publishers;
-	
+
 	@JSON("price_overview") Nullable!PriceOverview priceOverview;
 
 	/// Array of the app dlcs, if any
-	@JSON("dlc")            Nullable!(int[]) dlc;
-	@JSON("packages")       Nullable!(int[]) packages;
+	@JSON("dlc")            int[] dlc;
+	@JSON("packages")       int[] packages;
 	@JSON("package_groups") PackageGroup[]   packageGroups;
-	
+
 	@JSON("platforms") Platforms platforms;
-	
-	@JSON("categories")  Nullable!(Category[]) categories;
-	@JSON("genres")      Nullable!(Genre[])    genres;
-	
-	@JSON("movies")      Nullable!(Movie[]) movies;
-	@JSON("screenshots") Nullable!(Screenshot[]) screenshots;
-	
+
+	@JSON("categories")  Category[] categories;
+	@JSON("genres")      Genre[]    genres;
+
+	@JSON("movies")      Movie[] movies;
+	@JSON("screenshots") Screenshot[] screenshots;
+
 	@JSON("recommendations") Nullable!Recommendations recommendations;
 	@JSON("achievements")    Nullable!Achievements    achievements;
-	
+
 	@JSON("release_date") ReleaseDate releaseDate;
 	@JSON("support_info") SupportInfo supportInfo;
-	
-	@JSON("legal_notice") Nullable!string legalNotice;
-	@JSON("drm_notice")   Nullable!string drmNotice;
+
+	@JSON("legal_notice") string legalNotice;
+	@JSON("drm_notice")   string drmNotice;
 	@JSON("metacritic")   Nullable!Metacritic metacritic;
-	
+
 	@JSON("header_image") string headerImage;
 	@JSON("background")   string background;
-	
+
 	@JSON("content_descriptors") ContentDescriptors contentDescriptors;
-	
+
 	Nullable!Requirements pcRequirements;
 	Nullable!Requirements macRequirements;
 	Nullable!Requirements linuxRequirements;
-	
+
 	int requiredAge;
 
 	/**
@@ -187,24 +187,24 @@ private struct AppData
 	 */
 	this()(in auto ref JSONValue json)
 	{
-		fromJSON!(getSymbolsByUDA!(typeof(this), JSONAttr))(json);
-		
+		serialize!AppData(this, json);
+
 		if (json["required_age"].type == JSONType.integer)
 			requiredAge = json["required_age"].integer.to!int;
 		else if (json["required_age"].type == JSONType.string)
 			requiredAge = json["required_age"].str.to!int;
-		
+
 		// Generally requirements fields are returned as objects,
 		// but for some reason if field is empty, steam returns
 		// it as an array
 		if ("pc_requirements" in json)
 			if (json["pc_requirements"].type == JSONType.object)
 				pcRequirements = Requirements(json["pc_requirements"]);
-		
+
 		if ("mac_requirements" in json)
 			if (json["mac_requirements"].type == JSONType.object)
 				macRequirements = Requirements(json["mac_requirements"]);
-		
+
 		if ("linux_requirements" in json)
 			if (json["linux_requirements"].type == JSONType.object)
 				linuxRequirements = Requirements(json["linux_requirements"]);
@@ -213,20 +213,16 @@ private struct AppData
 
 struct Fullgame
 {
-	int    appID;
+	string appID;
 	string name;
 
-	this(JSONValue json)
-	{
-		appID = json["appid"].str.to!int;
-		name  = json["name"].str;
-	}
+	mixin JSONCtor;
 }
 
 struct Requirements
 {
-	@JSON("minimum")     Nullable!string minimum;
-	@JSON("recommended") Nullable!string recommended;
+	@JSON("minimum")     string minimum;
+	@JSON("recommended") string recommended;
 
 	mixin JSONCtor;
 }
@@ -279,7 +275,7 @@ struct PackageGroup
 
 	this(JSONValue json)
 	{
-		fromJSON!(getSymbolsByUDA!(typeof(this), JSONAttr))(json);
+		serialize!PackageGroup(this, json);
 
 		if (json["display_type"].type == JSONType.integer)
 			displayType = json["display_type"].integer.to!int;
@@ -366,7 +362,7 @@ struct Recommendations
 struct Achievements
 {
 	@JSON("total")       int total;
-	@JSON("highlighted") Nullable!(Achivement[]) highlighted;
+	@JSON("highlighted") Achivement[] highlighted;
 
 	private struct Achivement
 	{
@@ -398,7 +394,7 @@ struct SupportInfo
 struct Metacritic
 {
 	@JSON("score") int score;
-	@JSON("url")   Nullable!string url;
+	@JSON("url")   string url;
 
 	mixin JSONCtor;
 }
@@ -406,7 +402,7 @@ struct Metacritic
 struct ContentDescriptors
 {
 	@JSON("ids")   int[] ids;
-	@JSON("notes") Nullable!string notes;
+	@JSON("notes") string notes;
 
 	mixin JSONCtor;
 }
