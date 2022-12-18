@@ -15,6 +15,9 @@
 *.exe
 steamwebapi-d-test-library
 
+# Windows debug
+steamwebapi-d-test-library.pdb
+
 # DUB
 .dub
 docs.json
