@@ -23,9 +23,8 @@
 
 module steamwebapi.iplayerservice;
 
-import std.algorithm : map, sort, uniq;
-import std.array : array, join;
-import std.conv : to;
+import std.algorithm : map;
+import std.array : array;
 import std.json : JSONValue, parseJSON;
 import std.net.curl : get;
 import std.typecons : Nullable;

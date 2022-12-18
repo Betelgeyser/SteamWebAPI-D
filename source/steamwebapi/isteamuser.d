@@ -26,9 +26,8 @@ module steamwebapi.isteamuser;
 import std.algorithm : map, sort, uniq;
 import std.array : array, join;
 import std.conv : to;
-import std.json : JSONValue, parseJSON;
+import std.json : parseJSON;
 import std.net.curl : get;
-import std.traits : getSymbolsByUDA;
 import std.typecons : Nullable;
 
 import steamwebapi.utilities;

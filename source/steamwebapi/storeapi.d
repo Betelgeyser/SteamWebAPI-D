@@ -24,12 +24,10 @@
 module steamwebapi.storeapi;
 
 import std.conv : to;
-import std.exception : enforce;
 import std.json : JSONType, JSONValue, parseJSON;
 import std.net.curl : get;
 import std.string : format;
-import std.traits : getSymbolsByUDA;
-import std.typecons : nullable, Nullable;
+import std.typecons : Nullable;
 
 import steamwebapi.utilities;
 
