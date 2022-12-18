@@ -177,7 +177,7 @@ private struct AppData
 	Nullable!Requirements macRequirements;
 	Nullable!Requirements linuxRequirements;
 
-	int requiredAge;
+	string requiredAge;
 
 	/**
 	 * Constructs AppData from json value.
@@ -189,10 +189,11 @@ private struct AppData
 	{
 		serialize!AppData(this, json);
 
+		// Steam returns required age as int if it is 0, otherwise as string
 		if (json["required_age"].type == JSONType.integer)
-			requiredAge = json["required_age"].integer.to!int;
-		else if (json["required_age"].type == JSONType.string)
-			requiredAge = json["required_age"].str.to!int;
+			requiredAge = json["required_age"].integer.to!string;
+		else
+			requiredAge = json["required_age"].str;
 
 		// Generally requirements fields are returned as objects,
 		// but for some reason if field is empty, steam returns
