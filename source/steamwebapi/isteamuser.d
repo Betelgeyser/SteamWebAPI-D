@@ -45,11 +45,9 @@ enum PersonaState
 
 enum CommunityVisibilityState
 {
-	private_         = 1,
-	friendsOnly      = 2,
-	friendsOfFriends = 3,
-	usersOnly        = 4,
-	public_          = 5
+	private_    = 1,
+	friendsOnly = 2,
+	public_     = 3
 }
 
 struct Player
