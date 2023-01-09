@@ -253,7 +253,7 @@ struct PackageGroup
 
 	@JSON("subs") Sub[] subs;
 
-	int displayType;
+	string displayType;
 
 	private struct Sub
 	{
@@ -276,11 +276,12 @@ struct PackageGroup
 	{
 		serialize!PackageGroup(this, json);
 
+		// display_type can have numeric value as well as text occasionally
 		if (json["display_type"].type == JSONType.integer)
-			displayType = json["display_type"].integer.to!int;
+			displayType = json["display_type"].integer.to!string;
 
 		else if (json["display_type"].type == JSONType.string)
-			displayType = json["display_type"].str.to!int;
+			displayType = json["display_type"].str;
 	}
 }
 
