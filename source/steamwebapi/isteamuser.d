@@ -71,13 +71,13 @@ struct Player
 
 	/// Private steam data
 	@JSON("realname")          string realName;
-	@JSON("timecreated")       Nullable!long   timeCreated;
+	@JSON("timecreated")       Nullable!long timeCreated;
 	@JSON("gameserverip")      string gameServerIP;
 	@JSON("gameextrainfo")     string gameExtraInfo;
 	@JSON("loccountrycode")    string locCountryCode;
 	@JSON("locstatecode")      string locStateCode;
-	@JSON("loccitycode")       Nullable!long   locCityCode;
-	@JSON("personastateflags") Nullable!int personaStateFlags;
+	@JSON("loccitycode")       Nullable!long locCityCode;
+	@JSON("personastateflags") Nullable!int  personaStateFlags;
 
 	@JSON("primaryclanid")     string primaryClanID;
 	@JSON("gameid")            string gameID;
@@ -87,13 +87,17 @@ struct Player
 	mixin JSONCtor;
 }
 
-Player[] getPlayerSummaries(const string key, const long[] steamids)
+template getPlayerSummaries(bool raw = false)
+{
+	alias getPlayerSummaries = getPlayerSummariesImpl!raw;
+}
+
+private string getPlayerSummariesImpl(bool raw : true)(const string key, const long[] steamids)
 {
 	if (steamids.length > 100)
 		throw new Exception("GetPlayerSummaries method takes only up to 100 steamids");
 
-	scope auto response = get(
-		  "https://api.steampowered.com/"
+	scope string url = "https://api.steampowered.com/"
 		~ "ISteamUser/GetPlayerSummaries/v2/"
 		~ "?key=" ~ key
 		~ "&steamids=" ~ steamids
@@ -101,9 +105,14 @@ Player[] getPlayerSummaries(const string key, const long[] steamids)
 			.sort!((a, b) => a < b) // uniq works on consecutive elements only.
 			.uniq()
 			.map!(id => id.to!string)
-			.join(",")
-	);
+			.join(",");
 
+	return get(url).to!string;
+}
+
+private Player[] getPlayerSummariesImpl(bool raw : false)(const string key, const long[] steamids)
+{
+	scope string response = getPlayerSummaries!true(key, steamids);
 	return response
 		.parseJSON["response"]["players"].array
 		.map!(json => Player(json))
